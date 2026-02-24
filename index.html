@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <title>Project Madhava | IIT Gandhinagar</title>
+
+</head>
+
+
+<body>
+
+  <header>
+    <h1>Project Madhava</h1>
+    <nav>
+      <a href="#vision">Vision</a>
+      <a href="#About me">About me</a>
+      <a href="#involve">Get Involved</a>
+    </nav>
+  </header>
+
+  <section class="hero fade-in">
+    <h2>From Logic Gates to Silicon</h2>
+    <p>
+      Project Madhava is a hands-on hardware initiative based at IIT Gandhinagar,
+      rebuilding the pathway from circuits to microcontrollers,empowering a new
+      generation of engineers to not just use computers, but build them.
+    </p>
+    <a href="#involve" class="button">Join the Mission</a>
+  </section>
+
+  <section id="vision" class="fade-in">
+    <h2 class="section-title">Why India? Why now?</h2>
+    <div class="content">
+      <p>
+        While most learn to program at high levels of abstraction, very few
+        experience the complete journey from logic gates to working silicon.
+      </p>
+      <p>
+        As India invests in semiconductor manufacturing and design, the need for
+        engineers who deeply understand computer architecture and hardware systems
+        has never been greater.
+      </p>
+      <p>
+        Project Madhava seeks to bridge this gap through immersive,
+        hands-on pedagogy that integrates theory with real fabrication.
+      </p>
+    </div>
+  </section>
+
+  <section id="program" class="fade-in">
+    <h2 class="section-title">Who am I?</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Teaching</h3>
+        <p>Taught people that computers are not run by nano sized people! (aka computer architecture)</p>
+      </div>
+      <div class="card">
+        <h3>Research</h3>
+        <p>Once was researcher at your favourite graphics card company!</p>
+      </div>
+      <div class="card">
+        <h3>Somewhere In between</h3>
+        <p>Architect of stuff you use every day!</p>
+      </div>
+      <h3 class="subtitle"> Too academic for industry. Too industrial for academia.</h3>
+    </div>
+  </section>
+
+  <section id="involve" class="fade-in">
+    <h2 class="section-title">Get Involved</h2>
+    <div class="content">
+      <p>
+        This mission will only be made successful by people. People who will help us build this curriculum, help create
+        novel pedagogical strategies to execute hands-on learning at scale, and build working silicon products.
+      </p>
+      <p>
+        We are looking for engineers, educators, designers, and builders who want to
+        help create a generation that doesn’t just use computers, but creates them. If this mission excites and
+        motivates you, please fill in the form below and I'll reach out to you
+      </p>
+      <a href="https://lnkd.in/gwTkR72w" class="button">Apply Now</a>
+    </div>
+  </section>
+
+  <footer>
+    <canvas id="dotCanvas"></canvas>
+    <p>Every visit leaves a mark.</p>
+    2026 Project Madhava · IIT Gandhinagar
+    <br>
+    Center for Creative Learning
+  </footer>
+
+  <script>
+    const faders = document.querySelectorAll('.fade-in');
+
+    const appearOptions = {
+      threshold: 0.1
+    };
+
+    const appearOnScroll = new IntersectionObserver(function (
+      entries,
+      observer
+    ) {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      });
+    }, appearOptions);
+
+    faders.forEach(fader => {
+      appearOnScroll.observe(fader);
+    });
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+
+      authDomain: "dots-54675.firebaseapp.com",
+      projectId: "dots-54675",
+      storageBucket: "dots-54675.firebasestorage.app",
+      messagingSenderId: "1050837429513",
+      appId: "1:1050837429513:web:45cc1747a3030e18a077d8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const footer = document.querySelector("footer");
+    const canvas = document.getElementById("dotCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      const rect = footer.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    function drawDot(x, y) {
+      ctx.fillStyle = "rgba(37, 99, 235, 0.7)";
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    async function addVisitorDot() {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height;
+
+      await addDoc(collection(db, "visits"), {
+        x,
+        y,
+        timestamp: serverTimestamp()
+      });
+    }
+
+    async function loadDots() {
+      const snapshot = await getDocs(collection(db, "visits"));
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        drawDot(data.x, data.y);
+      });
+    }
+
+    async function init() {
+      if (!localStorage.getItem("visited")) {
+        await addVisitorDot();
+        localStorage.setItem("visited", "true");
+      }
+      await loadDots();
+    }
+
+    init();
+  </script>
+
+
+</body>
+
+</html>
